@@ -162,7 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		MessageBoxA(
 		nullptr,
 		"Failed to create swap chain",
-		"no",
+		"error",
 		MB_OK);
 	}
 
