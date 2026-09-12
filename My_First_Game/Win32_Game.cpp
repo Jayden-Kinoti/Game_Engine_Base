@@ -114,6 +114,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//we create the swapchain now
 	IDXGISwapChain* swapChain = nullptr;
+	ID3D11Resource* backBuffer = nullptr;
 
 	//getting the legacy DXGI from the D3D11
 	IDXGIDevice* dxgiDevice = nullptr;
@@ -165,6 +166,39 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		"error",
 		MB_OK);
 	}
+
+	//now lets ask swap chain for the buffer
+	result = swapChain->GetBuffer(
+		0,
+		__uuidof(ID3D11Resource),
+		reinterpret_cast<void**>(&backBuffer)
+	);
+	
+
+	//creating the render target view
+	ID3D11RenderTargetView* renderTargetView = nullptr;
+	result = device->CreateRenderTargetView(
+	backBuffer,
+	nullptr,
+	&renderTargetView
+	);
+
+	if (FAILED(result)) {
+		MessageBoxA(
+		nullptr,
+		"Failed to create a render target view",
+		"ERROR",
+		MB_OK
+		);
+		return 0;
+	}
+
+	//now let's make the Output Merger Render targets - this is the final part of the graphics pipeline 
+	devicecontext->OMSetRenderTargets(
+	1,
+	&renderTargetView,
+	nullptr
+	);
 
 	MSG msg = {};
 
