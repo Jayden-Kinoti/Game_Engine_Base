@@ -195,16 +195,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//now let's make the Output Merger Render targets - this is the final part of the graphics pipeline 
 	devicecontext->OMSetRenderTargets(
-	1,
-	&renderTargetView,
+	1, //this is binding one render target
+	&renderTargetView, //the reference for the render target being binded to
 	nullptr
 	);
 
-	MSG msg = {};
-
-	bool running = true;
 	
 
+	MSG msg = {};
+	bool running = true;
+
+	float clearColor[4]{
+		0.0f, //red
+		0.0f, //green
+		0.0f, //blue
+		1.0f  //alpha
+	};
+	
 	while (running) {
 
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -217,9 +224,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			DispatchMessage(&msg);
 		}
 		//Update
-
+		//Game logic appears here too
 		//Render
 		
+		devicecontext->ClearRenderTargetView(
+			renderTargetView,
+			clearColor // the alpha being full makes it black
+		);
+
+		swapChain->Present(1, 0);
 
 	}
 
