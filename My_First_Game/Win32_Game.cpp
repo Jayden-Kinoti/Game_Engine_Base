@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <d3d11.h>
+#include "Shape.h"
 
 #pragma comment(lib, "d3d11.lib")
 
@@ -152,6 +153,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		"Error",
 		MB_OK
 		);
+		return 0;
 	}
 	//crate the swap chain now
 	result = factory->CreateSwapChain(
@@ -165,6 +167,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		"Failed to create swap chain",
 		"error",
 		MB_OK);
+		return 0;
 	}
 
 	//now lets ask swap chain for the buffer
@@ -173,6 +176,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		__uuidof(ID3D11Resource),
 		reinterpret_cast<void**>(&backBuffer)
 	);
+
+	if (FAILED(result)) {
+		MessageBoxA(
+			nullptr,
+			"Failed to GetBuffer",
+			"ERROR",
+			MB_OK
+		);
+		return 0;
+	};
 	
 
 	//creating the render target view
@@ -201,9 +214,57 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	);
 
 	
+	
+	//vertex data are in Shape.h
+	D3D11_BUFFER_DESC bufferDesc = {};
+	//what size are the values?
+	bufferDesc.ByteWidth = sizeof(vertices);
+	//how will they get accessed?
+	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	//there are many types of buffers and we want a vertex buffer
+	bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bufferDesc.CPUAccessFlags = 0;
+	//does this buffer need special features?
+	bufferDesc.MiscFlags = 0;
+	//use when creating a structured buffer
+	bufferDesc.StructureByteStride = 0;
 
-	MSG msg = {};
-	bool running = true;
+
+	D3D11_SUBRESOURCE_DATA initData = {};
+	initData.pSysMem = vertices; // tells direct 3d that the values are here
+
+	ID3D11Buffer* vertexBuffer = nullptr;
+	result = device->CreateBuffer(
+		&bufferDesc,
+		&initData,
+		&vertexBuffer
+	);
+
+	if (FAILED(result)) {
+		MessageBoxA(
+			nullptr,
+			"Failed to create vertexbuffer",
+			"ERROR",
+			MB_OK
+		);
+		return 0;
+	};
+
+
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	//now for the Input Assembler which will now take the vertices and now let us create geometry according to a drawing topology
+	devicecontext->IASetVertexBuffers(
+		0,
+		1,
+		&vertexBuffer,
+		&stride,
+		&offset
+	);
+
+	devicecontext->IASetPrimitiveTopology(
+		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+	);
 
 	float clearColor[4]{
 		0.0f, //red
@@ -211,6 +272,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		0.0f, //blue
 		1.0f  //alpha
 	};
+
+
+	MSG msg = {};
+	bool running = true;
 	
 	while (running) {
 

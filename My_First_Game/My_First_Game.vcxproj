@@ -141,6 +141,9 @@
   <ItemGroup>
     <ClCompile Include="Win32_Game.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shape.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
